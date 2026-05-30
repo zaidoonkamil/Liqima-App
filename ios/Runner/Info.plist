@@ -57,7 +57,7 @@
     <string>يحتاج التطبيق الوصول إلى مكتبة الصور لاختيار الصور وإضافتها داخل التطبيق.</string>
 
     <key>NSLocationWhenInUseUsageDescription</key>
-    <string>لن نستخدم موقعك. هذا الإذن مطلوب فقط لدعم مكتبات الإشعارات.</string>
+    <string>نستخدم موقعك لتحديد عنوان التوصيل بدقة، وعرض المطاعم القريبة منك، وتوصيل طلباتك إلى موقعك الحالي.</string>
 
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>

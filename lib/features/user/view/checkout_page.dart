@@ -108,15 +108,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
                         onCouponTap: () => _pickCoupon(context),
                       ),
                     ),
-                    const SliverToBoxAdapter(child: SizedBox(height: 10)),
-                    SliverToBoxAdapter(
-                      child: _TermsRow(
-                        value: acceptedTerms,
-                        onChanged:
-                            (value) =>
-                                setState(() => acceptedTerms = value ?? false),
-                      ),
-                    ),
+                    // const SliverToBoxAdapter(child: SizedBox(height: 10)),
+                    // SliverToBoxAdapter(
+                    //   child: _TermsRow(
+                    //     value: acceptedTerms,
+                    //     onChanged:
+                    //         (value) =>
+                    //             setState(() => acceptedTerms = value ?? false),
+                    //   ),
+                    // ),
                     const SliverToBoxAdapter(child: SizedBox(height: 12)),
                     SliverToBoxAdapter(
                       child: _ConfirmButton(
@@ -1045,6 +1045,7 @@ Future<void> _showOrderDoneDialog(BuildContext context) async {
         (dialogContext) => Directionality(
           textDirection: TextDirection.rtl,
           child: AlertDialog(
+            backgroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(20),
             ),
