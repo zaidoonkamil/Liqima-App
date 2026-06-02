@@ -8,7 +8,6 @@ import '../../core/navigation_bar/navigation_bar_restaurant.dart';
 import '../../core/network/local/cache_helper.dart';
 import '../../core/services/location_service.dart';
 import '../../core/widgets/constant.dart';
-import '../auth/view/login.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -21,14 +20,16 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(seconds: 1), () async {
       Widget? widget;
       if (CacheHelper.getData(key: 'token') == null) {
         token = '';
-        widget = const Login();
+        id = '';
+        adminOrUser = 'user';
+        widget = const BottomNavBar();
       } else {
         if (CacheHelper.getData(key: 'role') == null) {
-          widget = const Login();
+          widget = const BottomNavBar();
           adminOrUser = 'user';
         } else {
           adminOrUser = CacheHelper.getData(key: 'role');
@@ -41,14 +42,14 @@ class _SplashScreenState extends State<SplashScreen> {
           } else if (adminOrUser == 'user') {
             widget = const BottomNavBar();
           } else {
-            widget = const Login();
+            widget = const BottomNavBar();
           }
         }
         token = CacheHelper.getData(key: 'token');
         id = CacheHelper.getData(key: 'id') ?? '';
-        LocationService.loadCachedLocation();
-        LocationService.startLocationUpdates();
       }
+      LocationService.loadCachedLocation();
+      await LocationService.startLocationUpdates();
 
       if (!mounted) return;
       navigateAndFinish(context, widget);

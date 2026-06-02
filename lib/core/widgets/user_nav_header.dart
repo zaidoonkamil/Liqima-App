@@ -9,6 +9,7 @@ import '../../features/user/view/notifications.dart';
 import '../ navigation/navigation.dart';
 import '../services/location_service.dart';
 import '../styles/themes.dart';
+import 'auth_guard.dart';
 
 class UserNavHeader extends StatelessWidget {
   const UserNavHeader({super.key});
@@ -241,30 +242,38 @@ class _HeaderActions extends StatelessWidget {
           children: [
             _HeaderIconButton(
               icon: Iconsax.shopping_cart,
-              count: cartCount,
-              onTap: () {
-                navigateTo(
-                  context,
-                  BlocProvider.value(
-                    value: activeCubit,
-                    child: const CartPage(),
+              count: isUserLoggedIn ? cartCount : 0,
+              onTap:
+                  () => runWithLogin(
+                    context,
+                    featureName: 'السلة',
+                    action:
+                        () => navigateTo(
+                          context,
+                          BlocProvider.value(
+                            value: activeCubit,
+                            child: const CartPage(),
+                          ),
+                        ),
                   ),
-                );
-              },
             ),
             const SizedBox(width: 4),
             _HeaderIconButton(
               icon: Iconsax.notification,
-              count: unreadCount,
-              onTap: () {
-                navigateTo(
-                  context,
-                  BlocProvider.value(
-                    value: activeCubit,
-                    child: const NotificationsUser(),
+              count: isUserLoggedIn ? unreadCount : 0,
+              onTap:
+                  () => runWithLogin(
+                    context,
+                    featureName: 'الإشعارات',
+                    action:
+                        () => navigateTo(
+                          context,
+                          BlocProvider.value(
+                            value: activeCubit,
+                            child: const NotificationsUser(),
+                          ),
+                        ),
                   ),
-                );
-              },
             ),
           ],
         );

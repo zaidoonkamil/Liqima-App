@@ -84,6 +84,10 @@ class UserAddressSavingState extends UserStates {}
 
 class UserAddressSavedState extends UserStates {}
 
+class UserAddressDeletingState extends UserStates {}
+
+class UserAddressDeletedState extends UserStates {}
+
 class UserAddressErrorState extends UserStates {
   UserAddressErrorState(this.message);
 

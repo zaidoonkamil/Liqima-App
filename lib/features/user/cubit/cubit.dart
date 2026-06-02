@@ -581,6 +581,17 @@ class UserCubit extends Cubit<UserStates> {
     }
   }
 
+  Future<void> deleteUserAddress(int addressId) async {
+    emit(UserAddressDeletingState());
+    try {
+      await userProfileRepository.deleteAddress(addressId);
+      profileData = await userProfileRepository.getProfile();
+      emit(UserAddressDeletedState());
+    } catch (error) {
+      emit(UserAddressErrorState(error.toString()));
+    }
+  }
+
   Future<void> updateProfile({
     required String name,
     required String phone,

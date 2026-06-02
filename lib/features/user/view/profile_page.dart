@@ -16,6 +16,7 @@ import 'account_info_page.dart';
 import 'address_picker_page.dart';
 import 'contact_page.dart';
 import 'coupons_page.dart';
+import 'faq_page.dart';
 import 'widgets/user_page_shimmers.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -54,6 +55,8 @@ class _ProfilePageState extends State<ProfilePage> {
               }
               if (state is UserAddressErrorState) {
                 showToastError(text: state.message, context: context);
+              } else if (state is UserAddressDeletedState) {
+                showToastSuccess(text: 'تم حذف العنوان', context: context);
               }
             },
             builder: (context, state) {
@@ -75,7 +78,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   SliverToBoxAdapter(
                     child: _AddressesSection(
                       addresses: profile?.addresses ?? const [],
-                      saving: state is UserAddressSavingState,
+                      saving:
+                          state is UserAddressSavingState ||
+                          state is UserAddressDeletingState,
                     ),
                   ),
                   const SliverToBoxAdapter(child: SizedBox(height: 12)),
@@ -512,6 +517,24 @@ class _AddressTile extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(width: 6),
+            InkWell(
+              onTap: () => _confirmDeleteAddress(context, address),
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                width: 28,
+                height: 28,
+                decoration: BoxDecoration(
+                  color: secondaryColor.withValues(alpha: .10),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Iconsax.trash,
+                  color: secondaryColor,
+                  size: 14,
+                ),
+              ),
+            ),
             const SizedBox(width: 4),
             const Icon(Iconsax.arrow_left_2, color: primaryColor, size: 16),
           ],
@@ -612,6 +635,8 @@ class _OptionTile extends StatelessWidget {
           onFavoritesTap?.call();
         } else if (option.title == 'تواصل معنا') {
           navigateTo(context, const ContactPage());
+        } else if (option.title == 'الأسئلة الشائعة') {
+          navigateTo(context, const FaqPage());
         } else if (option.title == 'طرق الدفع') {
           showToastInfo(text: 'قادمة قريبا', context: context);
         }
@@ -724,6 +749,15 @@ class _AccountButton extends StatelessWidget {
       ),
     );
   }
+}
+
+void _confirmDeleteAddress(BuildContext context, UserAddressData address) {
+  showRestaurantDeleteDialog(
+    context: context,
+    title: 'حذف العنوان؟',
+    message: 'هل أنت متأكد أنك تريد حذف هذا العنوان من عناوينك؟',
+    onConfirm: () => UserCubit.get(context).deleteUserAddress(address.id),
+  );
 }
 
 Future<void> _openAddressPicker(

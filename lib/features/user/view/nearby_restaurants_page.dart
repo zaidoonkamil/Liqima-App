@@ -4,6 +4,7 @@ import 'package:iconsax/iconsax.dart';
 
 import '../../../core/ navigation/navigation.dart';
 import '../../../core/styles/themes.dart';
+import '../../../core/widgets/auth_guard.dart';
 import '../../../core/widgets/show_toast.dart';
 import '../../../core/widgets/user_nav_header.dart';
 import '../cubit/cubit.dart';
@@ -194,7 +195,13 @@ class _FavoriteRestaurantCard extends StatelessWidget {
         child: Row(
           children: [
             InkWell(
-              onTap: () => cubit.toggleHomeRestaurantFavorite(restaurant),
+              onTap:
+                  () => runWithLogin(
+                    context,
+                    featureName: 'المفضلة',
+                    action:
+                        () => cubit.toggleHomeRestaurantFavorite(restaurant),
+                  ),
               customBorder: const CircleBorder(),
               child: AnimatedScale(
                 scale: restaurant.isFavorite ? 1.08 : 1,

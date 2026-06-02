@@ -30,7 +30,7 @@ void main() async {
   if (!kIsWeb) {
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     OneSignal.Debug.setAlertLevel(OSLogLevel.none);
-    OneSignal.initialize("361394ea-ea14-4acf-9bd5-c723b4f93627");
+    OneSignal.initialize("d0d668ab-0021-4afd-8000-ac7b17a3ed4b");
     OneSignal.Notifications.requestPermission(true);
   }
   runApp(const MyApp());

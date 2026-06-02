@@ -59,6 +59,16 @@ class UserProfileRepository {
     );
   }
 
+  Future<void> deleteAddress(int addressId) async {
+    final userId = int.tryParse(id) ?? 0;
+    if (userId == 0) throw Exception('user id is missing');
+
+    await DioHelper.deleteData(
+      url: '/users/$userId/addresses/$addressId',
+      token: token,
+    );
+  }
+
   Future<UserProfileData> updateProfile({
     required String name,
     required String phone,

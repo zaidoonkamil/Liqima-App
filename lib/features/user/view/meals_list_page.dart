@@ -4,6 +4,7 @@ import 'package:iconsax/iconsax.dart';
 
 import '../../../core/ navigation/navigation.dart';
 import '../../../core/styles/themes.dart';
+import '../../../core/widgets/auth_guard.dart';
 import '../../../core/widgets/show_toast.dart';
 import '../../../core/widgets/user_nav_header.dart';
 import '../cubit/cubit.dart';
@@ -241,8 +242,14 @@ class _GridMealCard extends StatelessWidget {
                   child: _FavoriteCircle(
                     isFavorite: meal.isFavorite,
                     onTap:
-                        () =>
-                            UserCubit.get(context).toggleHomeMealFavorite(meal),
+                        () => runWithLogin(
+                          context,
+                          featureName: 'المفضلة',
+                          action:
+                              () => UserCubit.get(
+                                context,
+                              ).toggleHomeMealFavorite(meal),
+                        ),
                   ),
                 ),
                 Positioned(

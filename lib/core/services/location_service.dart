@@ -13,16 +13,23 @@ class LocationService {
     _cachedLocationLabel(),
   );
 
-  static bool _isStarting = false;
+  static Future<void>? _currentLocationRequest;
 
   static void loadCachedLocation() {
     locationLabel.value = _cachedLocationLabel();
   }
 
   static Future<void> startLocationUpdates() async {
-    if (_isStarting || token.isEmpty) return;
-    _isStarting = true;
+    final currentRequest = _currentLocationRequest;
+    if (currentRequest != null) return currentRequest;
 
+    _currentLocationRequest = _updateCurrentLocation();
+    return _currentLocationRequest!.whenComplete(() {
+      _currentLocationRequest = null;
+    });
+  }
+
+  static Future<void> _updateCurrentLocation() async {
     try {
       final hasPermission = await _ensurePermission();
       if (!hasPermission) return;
@@ -35,13 +42,11 @@ class LocationService {
       await _saveAndSyncPosition(currentPosition);
     } catch (_) {
       // Location should not block login/navigation.
-    } finally {
-      _isStarting = false;
     }
   }
 
   static Future<void> stopLocationUpdates() async {
-    _isStarting = false;
+    _currentLocationRequest = null;
   }
 
   static Future<bool> _ensurePermission() async {
@@ -60,8 +65,14 @@ class LocationService {
   static Future<void> _saveAndSyncPosition(Position position) async {
     final label = await _resolveLocationLabel(position);
 
-    await CacheHelper.saveData(key: 'latitude', value: position.latitude.toString());
-    await CacheHelper.saveData(key: 'longitude', value: position.longitude.toString());
+    await CacheHelper.saveData(
+      key: 'latitude',
+      value: position.latitude.toString(),
+    );
+    await CacheHelper.saveData(
+      key: 'longitude',
+      value: position.longitude.toString(),
+    );
     await CacheHelper.saveData(key: 'location', value: label);
     locationLabel.value = label;
 
@@ -89,11 +100,10 @@ class LocationService {
       );
       if (places.isNotEmpty) {
         final place = places.first;
-        final parts = [
-          place.locality,
-          place.subLocality,
-          place.street,
-        ].where((part) => part != null && part.trim().isNotEmpty).cast<String>();
+        final parts =
+            [place.locality, place.subLocality, place.street]
+                .where((part) => part != null && part.trim().isNotEmpty)
+                .cast<String>();
         final label = parts.join('، ');
         if (label.trim().isNotEmpty) return label;
       }

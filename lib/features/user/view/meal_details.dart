@@ -4,10 +4,12 @@ import 'package:iconsax/iconsax.dart';
 
 import '../../../core/ navigation/navigation.dart';
 import '../../../core/styles/themes.dart';
+import '../../../core/widgets/auth_guard.dart';
 import '../../../core/widgets/show_toast.dart';
 import '../cubit/cubit.dart';
 import '../cubit/states.dart';
 import '../data/meal_details_api_data.dart';
+import 'cart_page.dart';
 import 'restaurant_details.dart';
 import 'widgets/user_page_shimmers.dart';
 
@@ -64,6 +66,7 @@ class _MealDetailsPageState extends State<MealDetailsPage>
   }
 
   Future<void> _toggleFavorite(UserCubit cubit) async {
+    if (!await requireLogin(context, featureName: 'المفضلة')) return;
     await favoritePulse.forward();
     await favoritePulse.reverse();
     await cubit.toggleMealFavorite();
@@ -146,6 +149,27 @@ class _MealDetailsPageState extends State<MealDetailsPage>
                             onTap: () => navigateBack(context),
                           ),
                           const Spacer(),
+                          _HeaderButton(
+                            icon: Iconsax.shopping_cart,
+                            count:
+                                isUserLoggedIn
+                                    ? cubit.cartData?.summary.itemsCount ?? 0
+                                    : 0,
+                            onTap:
+                                () => runWithLogin(
+                                  context,
+                                  featureName: 'السلة',
+                                  action:
+                                      () => navigateTo(
+                                        context,
+                                        BlocProvider.value(
+                                          value: cubit,
+                                          child: const CartPage(),
+                                        ),
+                                      ),
+                                ),
+                          ),
+                          const SizedBox(width: 8),
                           ScaleTransition(
                             scale: favoritePulse,
                             child: _HeaderButton(
@@ -179,29 +203,58 @@ class _HeaderButton extends StatelessWidget {
     required this.icon,
     required this.onTap,
     this.iconColor = Colors.white,
+    this.count = 0,
   });
 
   final IconData icon;
   final VoidCallback onTap;
   final Color iconColor;
+  final int count;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(23),
-      child: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: .42),
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: Colors.white.withValues(alpha: .2),
-            width: 0.5,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: .42),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Colors.white.withValues(alpha: .2),
+                width: 0.5,
+              ),
+            ),
+            child: Icon(icon, color: iconColor, size: 14),
           ),
-        ),
-        child: Icon(icon, color: iconColor, size: 14),
+          if (count > 0)
+            Positioned(
+              right: -4,
+              top: -6,
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 17, minHeight: 17),
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  color: secondaryColor,
+                  shape: BoxShape.circle,
+                ),
+                child: Text(
+                  count > 99 ? '99+' : '$count',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -426,7 +479,12 @@ class _MealInfo extends StatelessWidget {
             loading: cubit.addingMealToCart,
             onMinus: cubit.decreaseMealQuantity,
             onPlus: cubit.increaseMealQuantity,
-            onAddToCart: cubit.addMealToCart,
+            onAddToCart:
+                () => runWithLogin(
+                  context,
+                  featureName: 'السلة',
+                  action: cubit.addMealToCart,
+                ),
           ),
           const SizedBox(height: 100),
         ],

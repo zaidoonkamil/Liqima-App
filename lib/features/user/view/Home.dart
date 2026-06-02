@@ -5,6 +5,7 @@ import 'package:iconsax/iconsax.dart';
 
 import '../../../core/ navigation/navigation.dart';
 import '../../../core/styles/themes.dart';
+import '../../../core/widgets/auth_guard.dart';
 import '../../../core/widgets/user_nav_header.dart';
 import '../cubit/cubit.dart';
 import '../cubit/states.dart';
@@ -531,8 +532,14 @@ class _MealCard extends StatelessWidget {
                   child: _FavoriteCircle(
                     isFavorite: meal.isFavorite,
                     onTap:
-                        () =>
-                            UserCubit.get(context).toggleHomeMealFavorite(meal),
+                        () => runWithLogin(
+                          context,
+                          featureName: 'المفضلة',
+                          action:
+                              () => UserCubit.get(
+                                context,
+                              ).toggleHomeMealFavorite(meal),
+                        ),
                   ),
                 ),
                 Positioned(
@@ -665,9 +672,14 @@ class _RestaurantCard extends StatelessWidget {
                   child: _FavoriteCircle(
                     isFavorite: restaurant.isFavorite,
                     onTap:
-                        () => UserCubit.get(
+                        () => runWithLogin(
                           context,
-                        ).toggleHomeRestaurantFavorite(restaurant),
+                          featureName: 'المفضلة',
+                          action:
+                              () => UserCubit.get(
+                                context,
+                              ).toggleHomeRestaurantFavorite(restaurant),
+                        ),
                   ),
                 ),
               ],

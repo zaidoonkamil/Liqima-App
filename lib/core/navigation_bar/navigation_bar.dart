@@ -9,7 +9,9 @@ import '../../features/user/view/favorites_page.dart';
 import '../../features/user/view/orders_page.dart';
 import '../../features/user/view/profile_page.dart';
 import '../../features/user/view/search_page.dart';
+import '../services/location_service.dart';
 import '../styles/themes.dart';
+import '../widgets/auth_guard.dart';
 
 class BottomNavBar extends StatefulWidget {
   const BottomNavBar({super.key, this.initialIndex = 2});
@@ -29,9 +31,23 @@ class _BottomNavBarState extends State<BottomNavBar> {
     super.initState();
     currentIndex = widget.initialIndex;
     loadedIndexes = {currentIndex};
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      LocationService.loadCachedLocation();
+      LocationService.startLocationUpdates();
+    });
   }
 
-  void _changeIndex(int index) {
+  Future<void> _changeIndex(int index) async {
+    if ((index == 0 || index == 3 || index == 4) && !isUserLoggedIn) {
+      final featureName = switch (index) {
+        0 => 'الملف الشخصي',
+        3 => 'طلباتي',
+        _ => 'المفضلة',
+      };
+      await requireLogin(context, featureName: featureName);
+      return;
+    }
+
     setState(() {
       currentIndex = index;
       loadedIndexes.add(index);
