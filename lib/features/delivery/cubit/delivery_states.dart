@@ -30,6 +30,18 @@ class DeliveryActionSuccess extends DeliveryState {
   const DeliveryActionSuccess();
 }
 
+class DeliveryNotificationsLoading extends DeliveryState {
+  const DeliveryNotificationsLoading();
+}
+
+class DeliveryNotificationsLoaded extends DeliveryState {
+  const DeliveryNotificationsLoaded();
+}
+
+class DeliveryNotificationsRead extends DeliveryState {
+  const DeliveryNotificationsRead();
+}
+
 class DeliveryError extends DeliveryState {
   const DeliveryError(this.message);
 

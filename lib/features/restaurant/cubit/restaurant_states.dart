@@ -32,6 +32,18 @@ class RestaurantOrdersLoaded extends RestaurantState {
   const RestaurantOrdersLoaded();
 }
 
+class RestaurantNotificationsLoading extends RestaurantState {
+  const RestaurantNotificationsLoading();
+}
+
+class RestaurantNotificationsLoaded extends RestaurantState {
+  const RestaurantNotificationsLoaded();
+}
+
+class RestaurantNotificationsRead extends RestaurantState {
+  const RestaurantNotificationsRead();
+}
+
 class RestaurantError extends RestaurantState {
   const RestaurantError(this.message, this.dashboard);
 

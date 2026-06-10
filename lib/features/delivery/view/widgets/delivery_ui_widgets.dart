@@ -1,17 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:iconsax/iconsax.dart';
 
+import '../../../../core/ navigation/navigation.dart';
 import '../../../../core/styles/themes.dart';
 import '../../../../core/widgets/user_nav_header.dart'
     show PinnedAppHeaderSliver;
+import '../../cubit/delivery_cubit.dart';
+import '../../cubit/delivery_states.dart';
+import '../delivery_notifications_page.dart';
 
-class DeliveryHeader extends StatelessWidget {
+class DeliveryHeader extends StatefulWidget {
   const DeliveryHeader({super.key, required this.title});
 
   final String title;
 
   @override
+  State<DeliveryHeader> createState() => _DeliveryHeaderState();
+}
+
+class _DeliveryHeaderState extends State<DeliveryHeader> {
+  bool requestedNotifications = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _requestNotifications();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    DeliveryCubit? cubit;
+    try {
+      cubit = context.read<DeliveryCubit>();
+    } catch (_) {
+      cubit = null;
+    }
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
       child: SizedBox(
@@ -26,7 +51,7 @@ class DeliveryHeader extends StatelessWidget {
                 children: [
                   Image.asset('assets/images/logo.png', height: 44),
                   Text(
-                    title,
+                    widget.title,
                     style: const TextStyle(
                       color: secondaryColor,
                       fontSize: 7,
@@ -36,12 +61,92 @@ class DeliveryHeader extends StatelessWidget {
                 ],
               ),
             ),
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
-              child: Icon(Iconsax.notification, size: 22),
+              child:
+                  cubit == null
+                      ? const Icon(Iconsax.notification, size: 22)
+                      : BlocBuilder<DeliveryCubit, DeliveryState>(
+                        bloc: cubit,
+                        builder: (context, state) {
+                          final unread =
+                              cubit?.notificationsData?.unreadCount ?? 0;
+                          return _DeliveryNotificationButton(
+                            count: unread,
+                            onTap:
+                                () => navigateTo(
+                                  context,
+                                  BlocProvider.value(
+                                    value: cubit!,
+                                    child: const DeliveryNotificationsPage(),
+                                  ),
+                                ),
+                          );
+                        },
+                      ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _requestNotifications() {
+    if (requestedNotifications) return;
+    requestedNotifications = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      try {
+        final cubit = context.read<DeliveryCubit>();
+        if (cubit.notificationsData == null) {
+          cubit.getNotificationsData();
+        }
+      } catch (_) {}
+    });
+  }
+}
+
+class _DeliveryNotificationButton extends StatelessWidget {
+  const _DeliveryNotificationButton({
+    required this.count,
+    required this.onTap,
+  });
+
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Icon(Iconsax.notification, size: 22),
+          if (count > 0)
+            Positioned(
+              right: -2,
+              top: -5,
+              child: Container(
+                width: 14,
+                height: 14,
+                decoration: const BoxDecoration(
+                  color: secondaryColor,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  count > 99 ? '99+' : '$count',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

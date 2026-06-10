@@ -46,26 +46,26 @@ class RestaurantMenuPage extends StatelessWidget {
                               onTap: () => showProductSheet(context: context),
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: _AddButton(
-                              text: 'إضافة قسم',
-                              icon: Iconsax.category,
-                              onTap: () {},
-                            ),
-                          ),
+                          // const SizedBox(width: 8),
+                          // Expanded(
+                          //   child: _AddButton(
+                          //     text: 'إضافة قسم',
+                          //     icon: Iconsax.category,
+                          //     onTap: () {},
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
                   ),
-                  const SliverToBoxAdapter(child: SizedBox(height: 12)),
-                  SliverToBoxAdapter(
-                    child: RestaurantSectionHeader(
-                      title: 'الأقسام',
-                      icon: Iconsax.category,
-                      count: dashboard.categories.length,
-                    ),
-                  ),
+                  // const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                  // SliverToBoxAdapter(
+                  //   child: RestaurantSectionHeader(
+                  //     title: 'الأقسام',
+                  //     icon: Iconsax.category,
+                  //     count: dashboard.categories.length,
+                  //   ),
+                  // ),
                   const SliverToBoxAdapter(child: SizedBox(height: 8)),
                   SliverList.separated(
                     itemBuilder: (context, index) {

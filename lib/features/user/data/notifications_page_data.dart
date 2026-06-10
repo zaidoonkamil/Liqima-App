@@ -5,7 +5,7 @@ import '../../../core/widgets/constant.dart';
 class UserNotificationsRepository {
   const UserNotificationsRepository();
 
-  String get _readKey => 'notifications_read_at_$id';
+  String get _readKey => 'notifications_read_at_${adminOrUser}_$id';
 
   Future<UserNotificationsData> getNotifications() async {
     final response = await DioHelper.getData(

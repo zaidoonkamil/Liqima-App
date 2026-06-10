@@ -336,14 +336,14 @@ class _QuickActions extends StatelessWidget {
             color: secondaryColor,
             onTap: onAddMeal,
           ),
-          const SizedBox(width: 8),
-          _ActionCard(
-            title: 'إضافة قسم',
-            subtitle: 'تنظيم القائمة',
-            icon: Iconsax.category,
-            color: const Color(0xFF2D8AC8),
-            onTap: () {},
-          ),
+          // const SizedBox(width: 8),
+          // _ActionCard(
+          //   title: 'إضافة قسم',
+          //   subtitle: 'تنظيم القائمة',
+          //   icon: Iconsax.category,
+          //   color: const Color(0xFF2D8AC8),
+          //   onTap: () {},
+          // ),
         ],
       ),
     );

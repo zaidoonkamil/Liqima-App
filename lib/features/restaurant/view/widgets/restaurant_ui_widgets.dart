@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:iconsax/iconsax.dart';
 
@@ -6,14 +7,37 @@ import '../../../../core/ navigation/navigation.dart';
 import '../../../../core/styles/themes.dart';
 import '../../../../core/widgets/user_nav_header.dart'
     show PinnedAppHeaderSliver;
+import '../../cubit/restaurant_cubit.dart';
+import '../../cubit/restaurant_states.dart';
+import '../restaurant_notifications_page.dart';
 
-class RestaurantHeader extends StatelessWidget {
+class RestaurantHeader extends StatefulWidget {
   const RestaurantHeader({super.key, required this.title});
 
   final String title;
 
   @override
+  State<RestaurantHeader> createState() => _RestaurantHeaderState();
+}
+
+class _RestaurantHeaderState extends State<RestaurantHeader> {
+  bool requestedNotifications = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _requestNotifications();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    RestaurantCubit? cubit;
+    try {
+      cubit = context.read<RestaurantCubit>();
+    } catch (_) {
+      cubit = null;
+    }
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
       child: SizedBox(
@@ -28,7 +52,7 @@ class RestaurantHeader extends StatelessWidget {
                 children: [
                   Image.asset('assets/images/logo.png', height: 44),
                   Text(
-                    title,
+                    widget.title,
                     style: const TextStyle(
                       color: secondaryColor,
                       fontSize: 7,
@@ -40,36 +64,91 @@ class RestaurantHeader extends StatelessWidget {
             ),
             Align(
               alignment: Alignment.centerLeft,
-              child: Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  const Icon(Iconsax.notification, size: 22),
-                  Positioned(
-                    right: -2,
-                    top: -5,
-                    child: Container(
-                      width: 14,
-                      height: 14,
-                      decoration: const BoxDecoration(
-                        color: secondaryColor,
-                        shape: BoxShape.circle,
+              child:
+                  cubit == null
+                      ? const Icon(Iconsax.notification, size: 22)
+                      : BlocBuilder<RestaurantCubit, RestaurantState>(
+                        bloc: cubit,
+                        builder: (context, state) {
+                          final unread =
+                              cubit?.notificationsData?.unreadCount ?? 0;
+                          return _RestaurantNotificationButton(
+                            count: unread,
+                            onTap:
+                                () => navigateTo(
+                                  context,
+                                  BlocProvider.value(
+                                    value: cubit!,
+                                    child:
+                                        const RestaurantNotificationsPage(),
+                                  ),
+                                ),
+                          );
+                        },
                       ),
-                      alignment: Alignment.center,
-                      child: const Text(
-                        '3',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _requestNotifications() {
+    if (requestedNotifications) return;
+    requestedNotifications = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      try {
+        final cubit = context.read<RestaurantCubit>();
+        if (cubit.notificationsData == null) {
+          cubit.getNotificationsData();
+        }
+      } catch (_) {}
+    });
+  }
+}
+
+class _RestaurantNotificationButton extends StatelessWidget {
+  const _RestaurantNotificationButton({
+    required this.count,
+    required this.onTap,
+  });
+
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(18),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          const Icon(Iconsax.notification, size: 22),
+          if (count > 0)
+            Positioned(
+              right: -2,
+              top: -5,
+              child: Container(
+                width: 14,
+                height: 14,
+                decoration: const BoxDecoration(
+                  color: secondaryColor,
+                  shape: BoxShape.circle,
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  count > 99 ? '99+' : '$count',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

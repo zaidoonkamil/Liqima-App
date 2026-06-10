@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../user/data/notifications_page_data.dart';
 import '../data/restaurant_remote_data_source.dart';
 import '../model/restaurant_models.dart';
 import 'restaurant_states.dart';
@@ -13,7 +14,9 @@ class RestaurantCubit extends Cubit<RestaurantState> {
   final RestaurantRemoteDataSource remoteDataSource;
   RestaurantDashboardModel? dashboard;
   List<RestaurantOrderModel> orders = [];
+  UserNotificationsData? notificationsData;
   String selectedOrderStatus = 'all';
+  bool loadingNotificationsData = false;
 
   Future<void> loadDashboard() async {
     emit(const RestaurantLoading());
@@ -59,6 +62,34 @@ class RestaurantCubit extends Cubit<RestaurantState> {
       );
       await _reloadOrders(status: selectedOrderStatus);
       await _reload(silent: true);
+    } catch (error) {
+      emit(RestaurantError(_errorMessage(error), dashboard));
+    }
+  }
+
+  Future<void> getNotificationsData({bool refresh = false}) async {
+    if (loadingNotificationsData) return;
+    loadingNotificationsData = true;
+    if (notificationsData == null || refresh) {
+      emit(const RestaurantNotificationsLoading());
+    }
+    try {
+      notificationsData =
+          await const UserNotificationsRepository().getNotifications();
+      loadingNotificationsData = false;
+      emit(const RestaurantNotificationsLoaded());
+    } catch (error) {
+      loadingNotificationsData = false;
+      emit(RestaurantError(_errorMessage(error), dashboard));
+    }
+  }
+
+  Future<void> markNotificationsRead() async {
+    try {
+      await const UserNotificationsRepository().markAllRead();
+      notificationsData =
+          await const UserNotificationsRepository().getNotifications();
+      emit(const RestaurantNotificationsRead());
     } catch (error) {
       emit(RestaurantError(_errorMessage(error), dashboard));
     }

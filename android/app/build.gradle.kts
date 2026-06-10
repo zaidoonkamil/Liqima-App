@@ -32,8 +32,8 @@ android {
         applicationId = "com.napol.liqima"
         minSdk = 23
         targetSdk = flutter.targetSdkVersion
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
     }
 
     signingConfigs {
